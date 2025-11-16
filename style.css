@@ -1,0 +1,136 @@
+/* General Styling */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #2a9d8f;
+    margin-bottom: 5px;
+}
+
+/* Search Form */
+#search-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+#search-input {
+    width: 60%;
+    max-width: 400px;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px 0 0 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#search-input:focus {
+    border-color: #2a9d8f;
+}
+
+#search-form button {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #2a9d8f;
+    color: white;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#search-form button:hover {
+    background-color: #264653;
+}
+
+/* Results Container & Recipe Cards */
+#results-container {
+    display: grid;
+    /* This is the magic for a responsive grid:
+       It creates columns that are at least 300px wide.
+       'auto-fit' tells it to fill the space with as many columns as fit.
+       '1fr' means each column shares the remaining space equally. */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 10px;
+}
+
+.recipe-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    /* Clips the image inside the border radius */
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    /* Stacks card content vertically */
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    /* Prevents image from stretching */
+}
+
+.recipe-card-content {
+    padding: 20px;
+    flex-grow: 1;
+    /* Makes this section fill the remaining card space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Pushes the button to the bottom */
+}
+
+.recipe-card h2 {
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.recipe-card a {
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #e76f51;
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.recipe-card a:hover {
+    background-color: #f4a261;
+}
+
+/* Helper classes for loading/errors */
+#loading-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+    padding: 30px;
+}
+
+.hidden {
+    display: none;
+}
