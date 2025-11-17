@@ -1,10 +1,30 @@
 /* General Styling */
+:root {
+    /* Light Mode (Default) */
+    --color-bg: #f4f7f6;
+    --color-text: #333;
+    --color-card-bg: #ffffff;
+    --color-primary: #2a9d8f;
+    --color-shadow: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode {
+    /* Dark Mode */
+    --color-bg: #1a1a1a;
+    --color-text: #f0f0f0;
+    --color-card-bg: #2b2b2b;
+    --color-primary: #2a9d8f;
+    /* Can stay the same or change */
+    --color-shadow: rgba(0, 0, 0, 0.2);
+    --color-text-secondary: #aaa;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #f4f7f6;
+    background-color: var(--color-bg);
     margin: 0;
     padding: 20px;
-    color: #333;
+    color: var(--color-text);
     min-height: 100vh;
 }
 
@@ -14,7 +34,7 @@ header {
 }
 
 header h1 {
-    color: #2a9d8f;
+    color: var(--color-primary);
     margin-bottom: 5px;
 }
 
@@ -25,12 +45,37 @@ header h1 {
     margin-bottom: 30px;
 }
 
+/* NEW CSS FOR FILTER DROPDOWNS */
+#filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    /* Adds space between the dropdowns */
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    /* Allows filters to wrap on small screens */
+}
+
+#filter-container select {
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 2px solid var(--color-shadow);
+    border-radius: 8px;
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
+    outline: none;
+}
+
+/* END NEW CSS FOR FILTER DROPDOWNS */
+
 #search-input {
     width: 60%;
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
     max-width: 400px;
     padding: 12px 15px;
     font-size: 16px;
-    border: 2px solid #ddd;
+    border: 2px solid var(--color-shadow);
     border-radius: 8px 0 0 8px;
     outline: none;
     transition: border-color 0.2s;
@@ -68,9 +113,9 @@ header h1 {
 }
 
 .recipe-card {
-    background-color: #ffffff;
+    background-color: var(--color-card-bg);
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px var(--color-shadow);
     overflow: hidden;
     /* Clips the image inside the border radius */
     transition: transform 0.2s, box-shadow 0.2s;
@@ -81,7 +126,7 @@ header h1 {
 
 .recipe-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px var(--color-shadow);
 }
 
 .recipe-card img {
@@ -100,6 +145,22 @@ header h1 {
     justify-content: space-between;
     /* Pushes the button to the bottom */
 }
+
+/*  ADD THIS NEW BLOCK  */
+.recipe-card-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary, #777);
+    /* This will be too light in dark mode, we'll fix it */
+    margin-bottom: 15px;
+}
+
+.recipe-card-info span {
+    font-weight: 500;
+}
+
+/*  END NEW BLOCK  */
 
 .recipe-card h2 {
     font-size: 1.25rem;
@@ -127,10 +188,83 @@ header h1 {
 #loading-message {
     text-align: center;
     font-size: 1.2rem;
-    color: #555;
+    color: var(--color-text);
     padding: 30px;
 }
 
 .hidden {
     display: none;
 }
+
+/*  MODAL STYLES  */
+
+.modal-overlay {
+    position: fixed;
+    /* Sits on top of all content */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    /* Start hidden */
+    pointer-events: none;
+    /* Can't click it */
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+    /* Clickable */
+}
+
+.modal {
+    background: var(--color-card-bg);
+    color: var(--color-text);
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    /* Max height */
+    overflow-y: auto;
+    /* Scrollable if content is too tall */
+    position: relative;
+    transform: scale(0.9);
+    /* Start slightly small */
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.visible .modal {
+    transform: scale(1);
+    /* Grow to full size */
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: var(--color-primary);
+}
+
+.modal-ingredients li {
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+/*  END OF MODAL STYLES  */

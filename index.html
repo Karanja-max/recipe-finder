@@ -12,6 +12,7 @@
     <header>
         <h1>🍳 Recipe Finder</h1>
         <p>Enter ingredients you have, separated by commas (e.g., "chicken, tomatoes, rice").</p>
+        <button id="theme-toggle">Toggle Dark/Light Mode</button>
     </header>
 
     <main>
@@ -19,6 +20,33 @@
             <input type="text" id="search-input" placeholder="Enter ingredients..." required>
             <button type="submit">Find Recipes</button>
         </form>
+
+        <div id="filter-container">
+            <select id="filter-diet">
+                <option value="">Diet (Any)</option>
+                <option value="vegan">Vegan</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="keto-friendly">Keto</option>
+                <option value="gluten-free">Gluten-Free</option>
+            </select>
+
+            <select id="filter-meal">
+                <option value="">Meal (Any)</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snack">Snack</option>
+            </select>
+
+            <select id="filter-cuisine">
+                <option value="">Cuisine (Any)</option>
+                <option value="Asian">Asian</option>
+                <option value="French">French</option>
+                <option value="Italian">Italian</option>
+                <option value="Mexican">Mexican</option>
+                <option value="American">American</option>
+            </select>
+        </div>
 
         <div id="loading-message" class="hidden">Finding recipes...</div>
 
