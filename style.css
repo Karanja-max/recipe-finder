@@ -184,6 +184,34 @@ header h1 {
     background-color: #f4a261;
 }
 
+/*  ADD THIS NEW BLOCK  */
+.recipe-card-buttons {
+    display: flex;
+    gap: 10px;
+    /* Space between groups */
+}
+
+.recipe-card-buttons-row {
+    display: flex;
+    gap: 10px;
+}
+
+.recipe-card-buttons-row a,
+.recipe-card-buttons-row button {
+    flex-grow: 1;
+    /* Make them share the space */
+    text-align: center;
+}
+
+/* Message for empty favorites page */
+#favorites-container p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--color-text);
+}
+
+/*  END OF NEW BLOCK  */
+
 /* Helper classes for loading/errors */
 #loading-message {
     text-align: center;
@@ -268,3 +296,49 @@ header h1 {
 }
 
 /*  END OF MODAL STYLES  */
+
+/* Style for nav links in the header */
+.nav-link {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+/* New button styles */
+.save-btn,
+.remove-btn {
+    padding: 8px 12px;
+    font-size: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #6c757d;
+    /* A neutral gray */
+    color: white;
+    font-weight: 500;
+    width: 100%;
+    /* Make it fill the space */
+}
+
+.save-btn:hover,
+.remove-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Style for the "Saved" state */
+.save-btn.saved {
+    background-color: #28a745;
+    /* Green */
+}
+
+/* This part is important! We need to update the
+  .recipe-card-buttons class you added before
+  to stack the new "Save" button.
+*/

@@ -15,18 +15,18 @@ const searchInput = document.getElementById('search-input');
 const resultsContainer = document.getElementById('results-container');
 const loadingMessage = document.getElementById('loading-message');
 
-//  NEW 
+//  SETUP FILTER ELEMENTS 
 const dietFilter = document.getElementById('filter-diet');
 const mealFilter = document.getElementById('filter-meal');
 const cuisineFilter = document.getElementById('filter-cuisine');
-//  END NEW 
+//  END SETUP FILTER ELEMENTS
 
-//  NEW: Create and add the modal structure to the page ---
+//   Create and add the modal structure to the page ---
 const modalOverlay = document.createElement('div');
 modalOverlay.id = 'modal-overlay';
 modalOverlay.classList.add('modal-overlay');
 document.body.appendChild(modalOverlay);
-//  END NEW 
+//  END 
 
 // API_KEY is loaded from config.js (which is in .gitignore)
 // This keeps your key secret!
@@ -39,7 +39,7 @@ searchForm.addEventListener('submit', function (e) {
     // Get the user's search query (the ingredients)
     const query = searchInput.value.trim();
 
-    //  NEW: Get filter values 
+    //   Get filter values 
     const diet = dietFilter.value;
     const meal = mealFilter.value;
     const cuisine = cuisineFilter.value;
@@ -62,9 +62,9 @@ searchForm.addEventListener('submit', function (e) {
 async function fetchRecipes(query, diet, meal, cuisine) {
     // This is the new API URL from RapidAPI
     // It requires a 'type=public' parameter
-    const apiUrl = `https://edamam-recipe-search.p.rapidapi.com/api/recipes/v2?type=public&q=${query}`;
+    let apiUrl = `https://edamam-recipe-search.p.rapidapi.com/api/recipes/v2?type=public&q=${query}`;
 
-    // NEW: Add filters to the URL ONLY if they are selected 
+    //  Add filters to the URL ONLY if they are selected 
     if (diet) {
         apiUrl += `&health=${diet}`;
     }
@@ -74,7 +74,7 @@ async function fetchRecipes(query, diet, meal, cuisine) {
     if (cuisine) {
         apiUrl += `&cuisineType=${cuisine}`;
     }
-    //  END NEW 
+    //  END  
 
     // These are the "options" required by RapidAPI, including your key
     const options = {
@@ -123,10 +123,10 @@ function displayRecipes(recipes) {
         // Get the recipe object from the 'hit'
         const recipe = hit.recipe;
 
-        //  NEW: Clean up data 
+        //   Clean up data 
         const calories = Math.round(recipe.calories / recipe.yield);
         const cookTime = recipe.totalTime > 0 ? `${recipe.totalTime} min` : 'N/A';
-        //  END NEW 
+        //  END 
 
         // 1. Create a new <div> element for the card
         const card = document.createElement('div');
@@ -139,26 +139,52 @@ function displayRecipes(recipes) {
             <img src="${recipe.image}" alt="${recipe.label}">
             <div class="recipe-card-content">
                 <h2>${recipe.label}</h2>
-                <div class.recipe-card-info">
+                <div class="recipe-card-info">
                     <span>${calories} kcal</span>
                     <span>${cookTime}</span>
                 </div>
                 <div class="recipe-card-buttons">
                 <a href="${recipe.url}" target="_blank" rel="noopener noreferrer">View Recipe</a>
                 <button class="view-ingredients-btn">Ingredients</button>
+                </div>
+                    <button class="save-btn ${isSaved ? 'saved' : ''}" data-recipe-id="${recipeId}">
+                        ${isSaved ? 'Saved' : 'Save to Favorites'}
+                    </button>
             </div>
             </div>
         `;
 
         // 3. Append the new card to the results container
         resultsContainer.appendChild(card);
-        //  NEW: Add event listener for the *specific* button we just created 
+        //   Add event listener for the *specific* button we just created 
         card.querySelector('.view-ingredients-btn').addEventListener('click', () => {
             showIngredientsModal(recipe);
         });
-        //  END NEW 
+        //  END 
     });
-}
+
+    //   Event listener for the SAVE button 
+    card.querySelector('.save-btn').addEventListener('click', (e) => {
+        const saveBtn = e.target;
+
+        // Create a simple recipe object to save
+        const recipeToSave = {
+            id: recipeId,
+            label: recipe.label,
+            image: recipe.image,
+            url: recipe.url,
+            ingredientLines: recipe.ingredientLines, // We'll save this for the modal on the favorites page
+            calories: calories,
+            cookTime: cookTime
+        };
+
+        toggleFavorite(recipeToSave);
+
+        // Update button text and style
+        saveBtn.classList.toggle('saved');
+        saveBtn.textContent = saveBtn.classList.contains('saved') ? 'Saved' : 'Save to Favorites';
+    });
+};
 
 //  5. THEME TOGGLER (Updated with localStorage) 
 
@@ -170,17 +196,16 @@ themeToggle.addEventListener('click', () => {
     // Toggle the .dark-mode class on the <body>
     document.body.classList.toggle('dark-mode');
 
-    // --- NEW ---
     // Save the user's preference to localStorage
     if (document.body.classList.contains('dark-mode')) {
         localStorage.setItem('theme', 'dark'); // Save "dark"
     } else {
         localStorage.setItem('theme', 'light'); // Save "light"
     }
-    //  END NEW 
+    //  END 
 });
 
-//  6. MODAL FUNCTIONS (New Section) 
+//  6. MODAL FUNCTIONS 
 
 // This is the modalOverlay we created in Step 1
 const modalOverlayEl = document.getElementById('modal-overlay');
@@ -217,4 +242,48 @@ modalOverlayEl.addEventListener('click', (e) => {
         closeModal();
     }
 });
-//  END OF NEW SECTION 
+//  END OF  SECTION 
+
+//  7. LOCALSTORAGE FUNCTIONS 
+
+function getFavorites() {
+    // Get the 'favorites' string from localStorage, or an empty array string
+    const favsJSON = localStorage.getItem('favorites') || '[]';
+    // Parse it into a real JavaScript array
+    return JSON.parse(favsJSON);
+}
+
+function saveFavorites(favorites) {
+    // Stringify the array so it can be stored
+    const favsJSON = JSON.stringify(favorites);
+    // Save it to localStorage
+    localStorage.setItem('favorites', favsJSON);
+}
+
+function toggleFavorite(recipe) {
+    let favorites = getFavorites();
+
+    // Check if the recipe is already saved
+    const existingIndex = favorites.findIndex(fav => fav.id === recipe.id);
+
+    if (existingIndex > -1) {
+        // It exists, so remove it
+        favorites.splice(existingIndex, 1);
+    } else {
+        // It doesn't exist, so add it
+        favorites.push(recipe);
+    }
+
+    // Save the updated array back to localStorage
+    saveFavorites(favorites);
+}
+
+//  8. SERVICE WORKER REGISTRATION 
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker: Registered'))
+            .catch(err => console.log(`Service Worker: Error: ${err}`));
+    });
+}
