@@ -28,10 +28,44 @@ modalOverlay.classList.add('modal-overlay');
 document.body.appendChild(modalOverlay);
 //  END 
 
+//  2. LOCALSTORAGE FUNCTIONS 
+
+function getFavorites() {
+    // Get the 'favorites' string from localStorage, or an empty array string
+    const favsJSON = localStorage.getItem('favorites') || '[]';
+    // Parse it into a real JavaScript array
+    return JSON.parse(favsJSON);
+}
+
+function saveFavorites(favorites) {
+    // Stringify the array so it can be stored
+    const favsJSON = JSON.stringify(favorites);
+    // Save it to localStorage
+    localStorage.setItem('favorites', favsJSON);
+}
+
+function toggleFavorite(recipe) {
+    let favorites = getFavorites();
+
+    // Check if the recipe is already saved
+    const existingIndex = favorites.findIndex(fav => fav.id === recipe.id);
+
+    if (existingIndex > -1) {
+        // It exists, so remove it
+        favorites.splice(existingIndex, 1);
+    } else {
+        // It doesn't exist, so add it
+        favorites.push(recipe);
+    }
+
+    // Save the updated array back to localStorage
+    saveFavorites(favorites);
+}
+
 // API_KEY is loaded from config.js (which is in .gitignore)
 // This keeps your key secret!
 
-//  2. EVENT LISTENER 
+//  3. EVENT LISTENER 
 searchForm.addEventListener('submit', function (e) {
     // Prevent the form from submitting the traditional way
     e.preventDefault();
@@ -57,7 +91,7 @@ searchForm.addEventListener('submit', function (e) {
     }
 });
 
-//  3. ASYNC FUNCTION TO FETCH DATA (Updated for /api/recipes/v2)
+//  4. ASYNC FUNCTION TO FETCH DATA (Updated for /api/recipes/v2)
 //  UPDATED: Accept new arguments 
 async function fetchRecipes(query, diet, meal, cuisine) {
     // This is the new API URL from RapidAPI
@@ -111,7 +145,7 @@ async function fetchRecipes(query, diet, meal, cuisine) {
     }
 }
 
-// 4. FUNCTION TO DISPLAY RECIPES (DOM Manipulation) 
+// 5. FUNCTION TO DISPLAY RECIPES (DOM Manipulation) 
 function displayRecipes(recipes) {
     if (recipes.length === 0) {
         resultsContainer.innerHTML = '<p style="text-align:center;">No recipes found for those ingredients. Try a different search.</p>';
@@ -126,7 +160,16 @@ function displayRecipes(recipes) {
         //   Clean up data 
         const calories = Math.round(recipe.calories / recipe.yield);
         const cookTime = recipe.totalTime > 0 ? `${recipe.totalTime} min` : 'N/A';
+        // Get current favorites to check against
+        const favorites = getFavorites(); // This now works
+
+        // Generate a unique ID for each recipe
+        const recipeId = encodeURIComponent(recipe.url);
+
+        // Check if this recipe is already saved
+        const isSaved = favorites.some(fav => fav.id === recipeId);
         //  END 
+
 
         // 1. Create a new <div> element for the card
         const card = document.createElement('div');
@@ -144,15 +187,16 @@ function displayRecipes(recipes) {
                     <span>${cookTime}</span>
                 </div>
                 <div class="recipe-card-buttons">
-                <a href="${recipe.url}" target="_blank" rel="noopener noreferrer">View Recipe</a>
-                <button class="view-ingredients-btn">Ingredients</button>
-                </div>
-                    <button class="save-btn ${isSaved ? 'saved' : ''}" data-recipe-id="${recipeId}">
-                        ${isSaved ? 'Saved' : 'Save to Favorites'}
-                    </button>
+    <div class="recipe-card-buttons-row">
+        <a href="${recipe.url}" target="_blank" rel="noopener noreferrer">View Recipe</a>
+        <button class="view-ingredients-btn">Ingredients</button>
+    </div>
+    <button class="save-btn ${isSaved ? 'saved' : ''}" data-recipe-id="${recipeId}">
+        ${isSaved ? 'Saved' : 'Save to Favorites'}
+    </button>
+</div>
             </div>
-            </div>
-        `;
+            `;
 
         // 3. Append the new card to the results container
         resultsContainer.appendChild(card);
@@ -161,32 +205,31 @@ function displayRecipes(recipes) {
             showIngredientsModal(recipe);
         });
         //  END 
-    });
+        //   Event listener for the SAVE button 
+        card.querySelector('.save-btn').addEventListener('click', (e) => {
+            const saveBtn = e.target;
 
-    //   Event listener for the SAVE button 
-    card.querySelector('.save-btn').addEventListener('click', (e) => {
-        const saveBtn = e.target;
+            // Create a simple recipe object to save
+            const recipeToSave = {
+                id: recipeId,
+                label: recipe.label,
+                image: recipe.image,
+                url: recipe.url,
+                ingredientLines: recipe.ingredientLines, // We'll save this for the modal on the favorites page
+                calories: calories,
+                cookTime: cookTime
+            };
 
-        // Create a simple recipe object to save
-        const recipeToSave = {
-            id: recipeId,
-            label: recipe.label,
-            image: recipe.image,
-            url: recipe.url,
-            ingredientLines: recipe.ingredientLines, // We'll save this for the modal on the favorites page
-            calories: calories,
-            cookTime: cookTime
-        };
+            toggleFavorite(recipeToSave);
 
-        toggleFavorite(recipeToSave);
-
-        // Update button text and style
-        saveBtn.classList.toggle('saved');
-        saveBtn.textContent = saveBtn.classList.contains('saved') ? 'Saved' : 'Save to Favorites';
+            // Update button text and style
+            saveBtn.classList.toggle('saved');
+            saveBtn.textContent = saveBtn.classList.contains('saved') ? 'Saved' : 'Save to Favorites';
+        });
     });
 };
 
-//  5. THEME TOGGLER (Updated with localStorage) 
+//  6. THEME TOGGLER (Updated with localStorage) 
 
 // Select the button
 const themeToggle = document.getElementById('theme-toggle');
@@ -205,7 +248,7 @@ themeToggle.addEventListener('click', () => {
     //  END 
 });
 
-//  6. MODAL FUNCTIONS 
+//  7. MODAL FUNCTIONS 
 
 // This is the modalOverlay we created in Step 1
 const modalOverlayEl = document.getElementById('modal-overlay');
@@ -244,39 +287,6 @@ modalOverlayEl.addEventListener('click', (e) => {
 });
 //  END OF  SECTION 
 
-//  7. LOCALSTORAGE FUNCTIONS 
-
-function getFavorites() {
-    // Get the 'favorites' string from localStorage, or an empty array string
-    const favsJSON = localStorage.getItem('favorites') || '[]';
-    // Parse it into a real JavaScript array
-    return JSON.parse(favsJSON);
-}
-
-function saveFavorites(favorites) {
-    // Stringify the array so it can be stored
-    const favsJSON = JSON.stringify(favorites);
-    // Save it to localStorage
-    localStorage.setItem('favorites', favsJSON);
-}
-
-function toggleFavorite(recipe) {
-    let favorites = getFavorites();
-
-    // Check if the recipe is already saved
-    const existingIndex = favorites.findIndex(fav => fav.id === recipe.id);
-
-    if (existingIndex > -1) {
-        // It exists, so remove it
-        favorites.splice(existingIndex, 1);
-    } else {
-        // It doesn't exist, so add it
-        favorites.push(recipe);
-    }
-
-    // Save the updated array back to localStorage
-    saveFavorites(favorites);
-}
 
 //  8. SERVICE WORKER REGISTRATION 
 

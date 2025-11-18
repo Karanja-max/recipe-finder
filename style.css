@@ -187,6 +187,7 @@ header h1 {
 /*  ADD THIS NEW BLOCK  */
 .recipe-card-buttons {
     display: flex;
+    flex-direction: column;
     gap: 10px;
     /* Space between groups */
 }
